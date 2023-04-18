@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // draw grid and render it
 
+  const squares = [];
+
   function createBoard() {
     for (let i = 0; i < layout.length; i++) {
       const square = document.createElement('div');
@@ -61,4 +63,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   createBoard();
+
+  // create pacman
+
+  let pacmanCurrentIndex = 490;
+  squares[pacmanCurrentIndex].classList.add('pac-man');
+
+  function movePacman(e) {
+    squares[pacmanCurrentIndex].classList.remove('pac-man')
+
+    switch (e.key) {
+      case 'ArrowLeft':
+        if (pacmanCurrentIndex % width !== 0) pacmanCurrentIndex -= 1
+        break;
+      case 'ArrowUp':
+        if (pacmanCurrentIndex - width >= 0) pacmanCurrentIndex -= width
+        break;
+      case 'ArrowRight':
+        if (pacmanCurrentIndex % width < width - 1) pacmanCurrentIndex += 1
+        break;
+      case 'ArrowDown':
+        if (pacmanCurrentIndex + width < width * width) pacmanCurrentIndex += width
+        break;
+    }
+    squares[pacmanCurrentIndex].classList.add('pac-man');
+  }
+document.addEventListener('keyup', movePacman);
+
 });
