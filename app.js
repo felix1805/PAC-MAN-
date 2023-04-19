@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const grid = document.querySelector('.grid');
   const scoreDisplay = document.getElementById('score');
   const width = 28;
+  let score = 0;
 
   const layout = [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -71,30 +72,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function movePacman(e) {
     squares[pacmanCurrentIndex].classList.remove('pac-man')
-    switch(e.key) {
+    switch (e.key) {
       case 'ArrowLeft':
         if (pacmanCurrentIndex % width !== 0 &&
-          !squares[pacmanCurrentIndex -1].classList.contains('wall') &&
-          !squares[pacmanCurrentIndex -1].classList.contains('ghost-lair')) pacmanCurrentIndex -= 1
+          !squares[pacmanCurrentIndex - 1].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex - 1].classList.contains('ghost-lair')) pacmanCurrentIndex -= 1
+        if (squares[pacmanCurrentIndex - 1] === squares[363]) {
+          pacmanCurrentIndex = 391
+        }
         break;
       case 'ArrowUp':
         if (pacmanCurrentIndex - width >= 0 &&
-          !squares[pacmanCurrentIndex -width].classList.contains('wall') &&
-          !squares[pacmanCurrentIndex -width].classList.contains('ghost-lair')) pacmanCurrentIndex -= width
+          !squares[pacmanCurrentIndex - width].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex - width].classList.contains('ghost-lair')) pacmanCurrentIndex -= width
         break;
       case 'ArrowRight':
         if (pacmanCurrentIndex % width < width - 1 &&
-          !squares[pacmanCurrentIndex +1].classList.contains('wall') &&
-          !squares[pacmanCurrentIndex +1].classList.contains('ghost-lair')) pacmanCurrentIndex += 1
+          !squares[pacmanCurrentIndex + 1].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex + 1].classList.contains('ghost-lair')) pacmanCurrentIndex += 1
+        if (squares[pacmanCurrentIndex + 1] === squares[392]) {
+          pacmanCurrentIndex = 364
+        }
         break;
       case 'ArrowDown':
-        if (pacmanCurrentIndex + width < width * width &&
-          !squares[pacmanCurrentIndex +width].classList.contains('wall') &&
-          !squares[pacmanCurrentIndex +width].classList.contains('ghost-lair')) pacmanCurrentIndex += width
-        break;
+        if (
+          pacmanCurrentIndex + width < width * width &&
+          !squares[pacmanCurrentIndex + width].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex + width].classList.contains('ghost-lair')
+        )
+          pacmanCurrentIndex += width
+        break
     }
     squares[pacmanCurrentIndex].classList.add('pac-man');
-  }
+
+    pacDotEaten();
+  };
   document.addEventListener('keyup', movePacman);
+
+  function pacDotEaten() {
+    if (squares[pacmanCurrentIndex].classList.contains('pac-dot')) {
+      score++;
+      scoreDisplay.innerHTML = score;
+      squares[pacmanCurrentIndex].classList.remove('pac-dot');
+    };
+  };
+
+  class Ghost {
+    constructor(className, startIndex, speed) {
+      this.className = className;
+      this.startIndex = startIndex;
+      this.speed = speed;
+      this.currentIndex = startIndex;
+      this.timerId = NaN
+    }
+  }
+
+  ghosts = [
+    new Ghost('blinky', 348, 250),
+    new Ghost('pinky', 376, 400),
+    new Ghost('inky', 351, 300),
+    new Ghost('clyde', 379, 500),
+  ];
+
+  ghosts.forEach(ghost => {
+    squares[ghost.currentIndex].classList.add(ghost.className);
+    squares[ghost.currentIndex].classList.add('ghost');
+  });
+
+  // move ghosts randomly
+  ghosts.forEach(ghosts => moveGhost(ghost));
+
+  function moveGhost(ghost) {
+    const directions = [-1, +1, width, -width];
+    let direction = directions[Math.floor(Math.random() * directions.length)];
+
+    ghost.timerId = setInterval(function() {
+      if (!squares[ghost.current + direction].classList.contains('ghost') && !squares[ghost.currentIndex + direction].classList.contains('wall')) {
+        // remove ghost classes
+        squares[ghost.currentIndex].classList.remove(ghost.className)
+        squares[ghost.currentIndex].classList.remove('ghost', 'scared-ghost')
+        // move into current space
+        ghost.currentIndex += direction
+        squares[ghost.currentIndex].classList.add(ghost.className, 'ghost')
+        // else find new random direction to proceed in
+      } else direction = directions[Math.floor(Math.random() * directions.length)]
+    })
+  }
 
 });
